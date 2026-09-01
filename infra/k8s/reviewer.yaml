@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: reviewer
-          image: 789438508565.dkr.ecr.us-east-1.amazonaws.com/reviewer:latest
+          image: 100995727661.dkr.ecr.us-east-1.amazonaws.com/reviewer:latest
           ports:
             - containerPort: 8003
           envFrom:

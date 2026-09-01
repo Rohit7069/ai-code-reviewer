@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: 789438508565.dkr.ecr.us-east-1.amazonaws.com/gateway:latest
+          image: 100995727661.dkr.ecr.us-east-1.amazonaws.com/gateway:latest
           ports:
             - containerPort: 8000
           envFrom:

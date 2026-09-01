@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: orchestrator
-          image: 789438508565.dkr.ecr.us-east-1.amazonaws.com/orchestrator:latest
+          image: 100995727661.dkr.ecr.us-east-1.amazonaws.com/orchestrator:latest
           ports:
             - containerPort: 8002
           envFrom:

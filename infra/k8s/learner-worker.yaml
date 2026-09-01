@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: learner-worker
-          image: 789438508565.dkr.ecr.us-east-1.amazonaws.com/learner:latest
+          image: 100995727661.dkr.ecr.us-east-1.amazonaws.com/learner:latest
           command: ["celery", "-A", "worker", "worker", "--loglevel=info", "-Q", "learning"]
           envFrom:
             - configMapRef:

@@ -9,7 +9,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: 789438508565.dkr.ecr.us-east-1.amazonaws.com/webhook:latest
+          image: 100995727661.dkr.ecr.us-east-1.amazonaws.com/webhook:latest
           workingDir: /db
           command: ["alembic", "-c", "/db/alembic.ini", "upgrade", "head"]
           env:

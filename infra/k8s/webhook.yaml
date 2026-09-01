@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: webhook
-          image: 789438508565.dkr.ecr.us-east-1.amazonaws.com/webhook:latest
+          image: 100995727661.dkr.ecr.us-east-1.amazonaws.com/webhook:latest
           ports:
             - containerPort: 8001
           envFrom:

@@ -64,3 +64,5 @@ kubeconfig
 
 # GitHub Actions local artifacts
 .github/workflows/*.local.yml
+
+.infra/k8s/secrets.yaml

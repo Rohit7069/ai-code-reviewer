@@ -1,0 +1,20 @@
+name: Orchestrator CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths: ["services/orchestrator/**"]
+  pull_request:
+    branches: [main]
+    paths: ["services/orchestrator/**"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/service-ci.yml
+    with:
+      service: orchestrator
+    secrets: inherit

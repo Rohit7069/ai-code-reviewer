@@ -1,0 +1,20 @@
+name: Reviewer CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths: ["services/reviewer/**"]
+  pull_request:
+    branches: [main]
+    paths: ["services/reviewer/**"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/service-ci.yml
+    with:
+      service: reviewer
+    secrets: inherit

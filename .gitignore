@@ -1,0 +1,66 @@
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/.terraform.lock.hcl
+crash.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Docker
+.docker/
+
+# Logs
+*.log
+logs/
+
+# Node / frontend tooling (if ever added)
+node_modules/
+
+# Kubernetes local config
+kubeconfig
+
+# Local project data
+/tmp/
+*.bak
+
+# GitHub Actions local artifacts
+.github/workflows/*.local.yml

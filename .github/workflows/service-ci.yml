@@ -57,25 +57,10 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
-      - name: Deploy to EKS
-        run: |
-          set -e
-          echo "Getting EKS token and CA..."
-          TOKEN=$(aws eks get-token --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1 | jq -r '.status.token')
-          CLUSTER_INFO=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1)
-          ENDPOINT=$(echo "$CLUSTER_INFO" | jq -r '.cluster.endpoint')
-          CA=$(echo "$CLUSTER_INFO" | jq -r '.cluster.certificateAuthority.data')
-          
-          test -n "$TOKEN"
-          printf '%s' "$CA" | base64 --decode > "$RUNNER_TEMP/eks-ca.crt"
-          KUBECTL_AUTH=(--server "$ENDPOINT" --certificate-authority "$RUNNER_TEMP/eks-ca.crt" --token "$TOKEN")
-          
-          echo "Verifying connection..."
-          kubectl "${KUBECTL_AUTH[@]}" get nodes
-          
-          echo "Deploying ${{ inputs.service }}..."
-          kubectl "${KUBECTL_AUTH[@]}" set image deployment/${{ inputs.service }} ${{ inputs.service }}=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.service }}:$GITHUB_SHA
-          
-          echo "Waiting for rollout..."
-          kubectl "${KUBECTL_AUTH[@]}" rollout status deployment/${{ inputs.service }} --timeout=5m
-          echo "Deployment successful!"
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1
+      - name: Deploy
+        env:
+          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+          SERVICE: ${{ inputs.service }}
+        run: kubectl set image deployment/$SERVICE $SERVICE=$ECR_REGISTRY/$SERVICE:$GITHUB_SHA

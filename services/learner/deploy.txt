@@ -2,3 +2,4 @@
 # Trigger pipeline - Wed Sep  2 11:28:13 EDT 2026
 # Fixed access policy - Wed Sep  2 11:35:54 EDT 2026
 # Consolidated deploy step - Wed Sep  2 11:39:21 EDT 2026
+# Manual token auth - Wed Sep  2 11:51:37 EDT 2026

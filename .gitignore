@@ -66,3 +66,5 @@ kubeconfig
 .github/workflows/*.local.yml
 
 .infra/k8s/secrets.yaml
+infra/k8s/secret.yaml
+infra/k8s/secret.yaml

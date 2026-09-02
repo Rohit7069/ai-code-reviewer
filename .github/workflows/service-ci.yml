@@ -66,34 +66,16 @@ jobs:
           ENDPOINT=$(echo "$CLUSTER_INFO" | jq -r '.cluster.endpoint')
           CA=$(echo "$CLUSTER_INFO" | jq -r '.cluster.certificateAuthority.data')
           
-          echo "Creating kubeconfig from scratch..."
-          mkdir -p "$HOME/.kube"
-          cat > "$HOME/.kube/config" <<EOF
-          apiVersion: v1
-          kind: Config
-          clusters:
-          - cluster:
-              server: $ENDPOINT
-              certificate-authority-data: $CA
-            name: ${{ secrets.EKS_CLUSTER_NAME }}
-          contexts:
-          - context:
-              cluster: ${{ secrets.EKS_CLUSTER_NAME }}
-              user: github-actions
-            name: ${{ secrets.EKS_CLUSTER_NAME }}
-          current-context: ${{ secrets.EKS_CLUSTER_NAME }}
-          users:
-          - name: github-actions
-            user:
-              token: $TOKEN
-          EOF
+          test -n "$TOKEN"
+          printf '%s' "$CA" | base64 --decode > "$RUNNER_TEMP/eks-ca.crt"
+          KUBECTL_AUTH=(--server "$ENDPOINT" --certificate-authority "$RUNNER_TEMP/eks-ca.crt" --token "$TOKEN")
           
           echo "Verifying connection..."
-          kubectl get nodes
+          kubectl "${KUBECTL_AUTH[@]}" get nodes
           
           echo "Deploying ${{ inputs.service }}..."
-          kubectl set image deployment/${{ inputs.service }} ${{ inputs.service }}=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.service }}:$GITHUB_SHA
+          kubectl "${KUBECTL_AUTH[@]}" set image deployment/${{ inputs.service }} ${{ inputs.service }}=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.service }}:$GITHUB_SHA
           
           echo "Waiting for rollout..."
-          kubectl rollout status deployment/${{ inputs.service }} --timeout=5m
+          kubectl "${KUBECTL_AUTH[@]}" rollout status deployment/${{ inputs.service }} --timeout=5m
           echo "Deployment successful!"

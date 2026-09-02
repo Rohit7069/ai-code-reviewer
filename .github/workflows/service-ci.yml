@@ -58,7 +58,12 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
       - name: Update kubeconfig
-        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1
+        run: |
+          echo "Cluster name: ${{ secrets.EKS_CLUSTER_NAME }}"
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1
+          echo "Kubeconfig path: $KUBECONFIG"
+          kubectl config current-context
+          echo "Config updated successfully"
       - name: Deploy
         env:
           ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com

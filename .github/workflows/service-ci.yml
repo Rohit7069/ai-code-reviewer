@@ -59,14 +59,23 @@ jobs:
           aws-region: us-east-1
       - name: Deploy to EKS
         run: |
-          echo "Updating kubeconfig for cluster: ${{ secrets.EKS_CLUSTER_NAME }}"
+          set -e
+          echo "Getting EKS token..."
+          TOKEN=$(aws eks get-token --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1 | jq -r '.status.token')
+          
+          echo "Updating kubeconfig..."
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1
           
-          echo "Current context:"
-          kubectl config current-context
+          echo "Setting credentials in kubeconfig..."
+          kubectl config set-credentials github-actions --token="$TOKEN"
+          kubectl config set-context --current --user=github-actions
+          
+          echo "Verifying connection..."
+          kubectl get nodes
           
           echo "Deploying ${{ inputs.service }}..."
           kubectl set image deployment/${{ inputs.service }} ${{ inputs.service }}=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.service }}:$GITHUB_SHA
           
-          echo "Deployment complete!"
+          echo "Waiting for rollout..."
           kubectl rollout status deployment/${{ inputs.service }} --timeout=5m
+          echo "Deployment successful!"

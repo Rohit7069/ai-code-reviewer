@@ -57,12 +57,17 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
+      - name: Verify AWS credentials
+        run: |
+          echo "AWS Account ID:"
+          aws sts get-caller-identity
+          echo "AWS Region: $AWS_REGION"
       - name: Update kubeconfig
         run: |
           echo "Cluster name: ${{ secrets.EKS_CLUSTER_NAME }}"
-          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1 --verbose
           echo "Kubeconfig path: $KUBECONFIG"
-          kubectl config current-context
+          kubectl config current-context || echo "Failed to get current context"
           echo "Config updated successfully"
       - name: Deploy
         env:

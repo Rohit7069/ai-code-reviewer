@@ -57,20 +57,16 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
-      - name: Verify AWS credentials
+      - name: Deploy to EKS
         run: |
-          echo "AWS Account ID:"
-          aws sts get-caller-identity
-          echo "AWS Region: $AWS_REGION"
-      - name: Update kubeconfig
-        run: |
-          echo "Cluster name: ${{ secrets.EKS_CLUSTER_NAME }}"
-          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1 --verbose
-          echo "Kubeconfig path: $KUBECONFIG"
-          kubectl config current-context || echo "Failed to get current context"
-          echo "Config updated successfully"
-      - name: Deploy
-        env:
-          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
-          SERVICE: ${{ inputs.service }}
-        run: kubectl set image deployment/$SERVICE $SERVICE=$ECR_REGISTRY/$SERVICE:$GITHUB_SHA
+          echo "Updating kubeconfig for cluster: ${{ secrets.EKS_CLUSTER_NAME }}"
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1
+          
+          echo "Current context:"
+          kubectl config current-context
+          
+          echo "Deploying ${{ inputs.service }}..."
+          kubectl set image deployment/${{ inputs.service }} ${{ inputs.service }}=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.service }}:$GITHUB_SHA
+          
+          echo "Deployment complete!"
+          kubectl rollout status deployment/${{ inputs.service }} --timeout=5m

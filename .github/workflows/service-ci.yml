@@ -60,15 +60,33 @@ jobs:
       - name: Deploy to EKS
         run: |
           set -e
-          echo "Getting EKS token..."
+          echo "Getting EKS token and CA..."
           TOKEN=$(aws eks get-token --cluster-name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1 | jq -r '.status.token')
+          CLUSTER_INFO=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1)
+          ENDPOINT=$(echo "$CLUSTER_INFO" | jq -r '.cluster.endpoint')
+          CA=$(echo "$CLUSTER_INFO" | jq -r '.cluster.certificateAuthority.data')
           
-          echo "Updating kubeconfig..."
-          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-1
-          
-          echo "Setting credentials in kubeconfig..."
-          kubectl config set-credentials github-actions --token="$TOKEN"
-          kubectl config set-context --current --user=github-actions
+          echo "Creating kubeconfig from scratch..."
+          mkdir -p "$HOME/.kube"
+          cat > "$HOME/.kube/config" <<EOF
+          apiVersion: v1
+          kind: Config
+          clusters:
+          - cluster:
+              server: $ENDPOINT
+              certificate-authority-data: $CA
+            name: ${{ secrets.EKS_CLUSTER_NAME }}
+          contexts:
+          - context:
+              cluster: ${{ secrets.EKS_CLUSTER_NAME }}
+              user: github-actions
+            name: ${{ secrets.EKS_CLUSTER_NAME }}
+          current-context: ${{ secrets.EKS_CLUSTER_NAME }}
+          users:
+          - name: github-actions
+            user:
+              token: $TOKEN
+          EOF
           
           echo "Verifying connection..."
           kubectl get nodes
